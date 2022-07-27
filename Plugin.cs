@@ -35,6 +35,7 @@ namespace CursorSwapper
             { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
 
         private static Texture2D _cursorSprite = null!;
+        private static Texture2D _vanillaCursorSprite = null!;
 
         private enum Toggle
         {
@@ -49,8 +50,25 @@ namespace CursorSwapper
                 "If set to on, the mod will attempt to search for a cursor.png file located in the plugins folder.\nIf it's not found, a warning will be presented in the console and the default game cursor will be used.",
                 false);
 
+            _vanillaCursorSprite = Resources.FindObjectsOfTypeAll<Texture2D>()
+                .First(s => s.name == "cursor" && s.isReadable);
             if (_useCustomCursor.Value == Toggle.On)
+            {
                 ApplyCursor();
+            }
+
+            _useCustomCursor.SettingChanged += (_, _) =>
+            {
+                if (_useCustomCursor.Value == Toggle.Off)
+                {
+                    Cursor.SetCursor(_vanillaCursorSprite, Vector2.zero, CursorMode.Auto);
+                }
+                else
+                {
+                    ApplyCursor();
+                }
+            };
+
 
             Assembly assembly = Assembly.GetExecutingAssembly();
             _harmony.PatchAll(assembly);
@@ -180,6 +198,11 @@ namespace CursorSwapper
             {
                 Cursor.SetCursor(_cursorSprite, new Vector2(6, 5), CursorMode.Auto);
             }
+            else if (_vanillaCursorSprite != null)
+            {
+                // Reset to vanilla if the image isn't found.
+                Cursor.SetCursor(_vanillaCursorSprite, Vector2.zero, CursorMode.Auto);
+            }
         }
 
         private static Texture2D LoadTexture(string name)
@@ -195,12 +218,12 @@ namespace CursorSwapper
                 byte[] fileData = File.ReadAllBytes(paths.Find(x => x.Contains(name)));
                 texture.LoadImage(fileData);
             }
-            catch (Exception e)
+            catch
             {
                 CursorSwapperLogger.LogWarning(
                     $"The file {name} couldn't be found in the directory path. Please make sure you are naming your files correctly and they are location somewhere in the BepInEx/plugins folder.\n" +
-                    $" Optionally, you can turn off 'Use Custom Backgrounds' inside of your configuration file. If you no longer wish to see this error.\n {e}");
-                texture = null!;
+                    $" Optionally, you can turn off 'Use Custom Backgrounds' inside of your configuration file. If you no longer wish to see this error.");
+                texture = _vanillaCursorSprite;
             }
 
 
