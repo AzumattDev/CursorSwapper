@@ -16,7 +16,7 @@ namespace CursorSwapper
     public class CursorSwapperPlugin : BaseUnityPlugin
     {
         internal const string ModName = "CursorSwapper";
-        internal const string ModVersion = "1.0.0";
+        internal const string ModVersion = "1.1.0";
         internal const string Author = "Azumatt";
         private const string ModGuid = Author + "." + ModName;
         private const string ConfigFileName = ModGuid + ".cfg";
@@ -222,7 +222,7 @@ namespace CursorSwapper
             {
                 CursorSwapperLogger.LogWarning(
                     $"The file {name} couldn't be found in the directory path. Please make sure you are naming your files correctly and they are location somewhere in the BepInEx/plugins folder.\n" +
-                    $" Optionally, you can turn off 'Use Custom Backgrounds' inside of your configuration file. If you no longer wish to see this error.");
+                    $"Optionally, you can turn off 'Use Custom Cursor' inside of your configuration file. If you no longer wish to see this error.");
                 texture = _vanillaCursorSprite;
             }
 
