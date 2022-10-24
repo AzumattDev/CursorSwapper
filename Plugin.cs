@@ -15,7 +15,7 @@ namespace CursorSwapper
     public class CursorSwapperPlugin : BaseUnityPlugin
     {
         internal const string ModName = "CursorSwapper";
-        internal const string ModVersion = "1.1.1";
+        internal const string ModVersion = "1.1.2";
         internal const string Author = "Azumatt";
         private const string ModGuid = Author + "." + ModName;
         private const string ConfigFileName = ModGuid + ".cfg";
