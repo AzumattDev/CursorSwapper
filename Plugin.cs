@@ -7,7 +7,6 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
-using ServerSync;
 using UnityEngine;
 
 namespace CursorSwapper
@@ -31,9 +30,6 @@ namespace CursorSwapper
         private static readonly ManualLogSource CursorSwapperLogger =
             BepInEx.Logging.Logger.CreateLogSource(ModName);
 
-        private static readonly ConfigSync ConfigSync = new(ModGuid)
-            { DisplayName = ModName, CurrentVersion = ModVersion, MinimumRequiredVersion = ModVersion };
-
         private static Texture2D _cursorSprite = null!;
         private static Texture2D _vanillaCursorSprite = null!;
 
@@ -45,10 +41,8 @@ namespace CursorSwapper
 
         public void Awake()
         {
-            ConfigSync.IsLocked = true;
-            _useCustomCursor = config("1 - General", "Use Custom Cursor", Toggle.On,
-                "If set to on, the mod will attempt to search for a cursor.png file located in the plugins folder.\nIf it's not found, a warning will be presented in the console and the default game cursor will be used.",
-                false);
+            _useCustomCursor = Config.Bind("1 - General", "Use Custom Cursor", Toggle.On,
+                "If set to on, the mod will attempt to search for a cursor.png file located in the plugins folder.\nIf it's not found, a warning will be presented in the console and the default game cursor will be used.");
 
             _vanillaCursorSprite = Resources.FindObjectsOfTypeAll<Texture2D>()
                 .First(s => s.name == "cursor" && s.isReadable);
@@ -147,48 +141,6 @@ namespace CursorSwapper
         #region ConfigOptions
 
         private static ConfigEntry<Toggle> _useCustomCursor = null!;
-
-        private ConfigEntry<T> config<T>(string group, string name, T value, ConfigDescription description,
-            bool synchronizedSetting = true)
-        {
-            ConfigDescription extendedDescription =
-                new(
-                    description.Description +
-                    (synchronizedSetting ? " [Synced with Server]" : " [Not Synced with Server]"),
-                    description.AcceptableValues, description.Tags);
-            ConfigEntry<T> configEntry = Config.Bind(group, name, value, extendedDescription);
-            //var configEntry = Config.Bind(group, name, value, description);
-
-            SyncedConfigEntry<T> syncedConfigEntry = ConfigSync.AddConfigEntry(configEntry);
-            syncedConfigEntry.SynchronizedConfig = synchronizedSetting;
-
-            return configEntry;
-        }
-
-        private ConfigEntry<T> config<T>(string group, string name, T value, string description,
-            bool synchronizedSetting = true)
-        {
-            return config(group, name, value, new ConfigDescription(description), synchronizedSetting);
-        }
-
-        private class ConfigurationManagerAttributes
-        {
-            public bool? Browsable = false;
-        }
-
-        class AcceptableShortcuts : AcceptableValueBase
-        {
-            public AcceptableShortcuts() : base(typeof(KeyboardShortcut))
-            {
-            }
-
-            public override object Clamp(object value) => value;
-            public override bool IsValid(object value) => true;
-
-            public override string ToDescriptionString() =>
-                "# Acceptable values: " + string.Join(", ", KeyboardShortcut.AllKeyCodes);
-        }
-
         #endregion
 
         private static void ApplyCursor()

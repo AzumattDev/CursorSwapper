@@ -1,4 +1,4 @@
-﻿# Cursor Swapper
+# Cursor Swapper
 
 `Client side` mod that allows swapping of the game cursor. The cursor will update immediately as long as there is
 a `cursor.png` file
@@ -19,11 +19,15 @@ removing the `cursor.png` file, as well as changing the config option "Use Custo
 
 `STEAM:` https://steamcommunity.com/id/azumatt/
 
-For Questions or Comments, find me in the Odin Plus Team Discord:
+For Questions or Comments, find me in the Odin Plus Team Discord or in mine:
+
 [![https://i.imgur.com/XXP6HCU.png](https://i.imgur.com/XXP6HCU.png)](https://discord.gg/Pb6bVMnFb2)
+<a href="https://discord.gg/pdHgy6Bsng"><img src="https://i.imgur.com/Xlcbmm9.png" href="https://discord.gg/pdHgy6Bsng" width="175" height="175"></a>
 
 > # Update Information (Latest listed first)
-> > ### 1.1.0
+> ### 1.1.1
+> - Remove ServerSync, not sure why I had it here. It's not needed, and would cause issues for Crossplay.
+> ### 1.1.0
 > - No longer require reboot to apply changes to the cursor.
 > ### 1.0.0
 > - Initial Release
