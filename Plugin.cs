@@ -15,20 +15,18 @@ namespace CursorSwapper
     public class CursorSwapperPlugin : BaseUnityPlugin
     {
         internal const string ModName = "CursorSwapper";
-        internal const string ModVersion = "1.1.3";
+        internal const string ModVersion = "1.1.4";
         internal const string Author = "Azumatt";
         private const string ModGuid = Author + "." + ModName;
         private const string ConfigFileName = ModGuid + ".cfg";
 
-        private static readonly string ConfigFileFullPath =
-            Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
+        private static readonly string ConfigFileFullPath = Paths.ConfigPath + Path.DirectorySeparatorChar + ConfigFileName;
 
         internal static string ConnectionError = "";
 
         private readonly Harmony _harmony = new(ModGuid);
 
-        private static readonly ManualLogSource CursorSwapperLogger =
-            BepInEx.Logging.Logger.CreateLogSource(ModName);
+        private static readonly ManualLogSource CursorSwapperLogger = BepInEx.Logging.Logger.CreateLogSource(ModName);
 
         private static Texture2D _cursorSprite = null!;
         private static Texture2D _vanillaCursorSprite = null!;
@@ -41,11 +39,9 @@ namespace CursorSwapper
 
         public void Awake()
         {
-            _useCustomCursor = Config.Bind("1 - General", "Use Custom Cursor", Toggle.On,
-                "If set to on, the mod will attempt to search for a cursor.png file located in the plugins folder.\nIf it's not found, a warning will be presented in the console and the default game cursor will be used.");
+            _useCustomCursor = Config.Bind("1 - General", "Use Custom Cursor", Toggle.On, "If set to on, the mod will attempt to search for a cursor.png file located in the plugins folder.\nIf it's not found, a warning will be presented in the console and the default game cursor will be used.");
 
-            _vanillaCursorSprite = Resources.FindObjectsOfTypeAll<Texture2D>()
-                .First(s => s.name == "cursor" && s.isReadable);
+            _vanillaCursorSprite = Resources.FindObjectsOfTypeAll<Texture2D>().First(s => s.name == "cursor" && s.isReadable);
             if (_useCustomCursor.Value == Toggle.On)
             {
                 ApplyCursor();
@@ -84,8 +80,7 @@ namespace CursorSwapper
             watcher.SynchronizingObject = ThreadingHelper.SynchronizingObject;
             watcher.EnableRaisingEvents = true;
 
-            FileSystemWatcher folderWatcher =
-                new(Paths.PluginPath);
+            FileSystemWatcher folderWatcher = new(Paths.PluginPath);
             folderWatcher.Changed += UpdateCursor;
             folderWatcher.Created += UpdateCursor;
             folderWatcher.Deleted += UpdateCursor;
@@ -117,8 +112,7 @@ namespace CursorSwapper
                 ApplyCursor();
         }
 
-        private static void OnError(object sender, ErrorEventArgs e) =>
-            PrintException(e.GetException());
+        private static void OnError(object sender, ErrorEventArgs e) => PrintException(e.GetException());
 
         private static void PrintException(Exception? ex)
         {
@@ -141,9 +135,10 @@ namespace CursorSwapper
         #region ConfigOptions
 
         private static ConfigEntry<Toggle> _useCustomCursor = null!;
+
         #endregion
 
-        private static void ApplyCursor()
+        internal static void ApplyCursor()
         {
             _cursorSprite = LoadTexture("cursor.png");
             if (_cursorSprite != null)
@@ -163,8 +158,7 @@ namespace CursorSwapper
 
             string? directoryName = Path.GetDirectoryName(Paths.PluginPath);
             if (directoryName == null) return texture;
-            List<string> paths = Directory.GetFiles(directoryName, "cursor.png", SearchOption.AllDirectories)
-                .OrderBy(Path.GetFileName).ToList();
+            List<string> paths = Directory.GetFiles(directoryName, "cursor.png", SearchOption.AllDirectories).OrderBy(Path.GetFileName).ToList();
             try
             {
                 byte[] fileData = File.ReadAllBytes(paths.Find(x => x.Contains(name)));
@@ -172,14 +166,22 @@ namespace CursorSwapper
             }
             catch
             {
-                CursorSwapperLogger.LogWarning(
-                    $"The file {name} couldn't be found in the directory path. Please make sure you are naming your files correctly and they are location somewhere in the BepInEx/plugins folder.\n" +
-                    $"Optionally, you can turn off 'Use Custom Cursor' inside of your configuration file. If you no longer wish to see this error.");
+                CursorSwapperLogger.LogWarning($"The file {name} couldn't be found in the directory path. Please make sure you are naming your files correctly and they are location somewhere in the BepInEx/plugins folder.\n" + $"Optionally, you can turn off 'Use Custom Cursor' inside of your configuration file. If you no longer wish to see this error.");
                 texture = _vanillaCursorSprite;
             }
 
 
             return texture!;
+        }
+    }
+
+    [HarmonyPatch(typeof(ZNetScene), nameof(ZNetScene.Awake))]
+    static class SwapAfterJewelcraftingBullshit
+    {
+        [HarmonyAfter("org.bepinex.plugins.jewelcrafting")]
+        static void Postfix(ZNetScene __instance)
+        {
+            CursorSwapperPlugin.ApplyCursor();
         }
     }
 }
