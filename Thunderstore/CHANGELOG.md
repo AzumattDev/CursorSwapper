@@ -1,5 +1,6 @@
 | `Version`   | `Update Notes`                                                                                                                                                     |
 |-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.1.5       | - Recompile for Ashlands                                                                                                                                           |
 | 1.1.4       | - Compatibility with Jewelcrafting overwriting the cursor during loading while connecting to a server. (Basically writes our texture back to it after JC is done). |
 | 1.1.3       | - Courtesy update for Valheim 0.217.22, nothing changed except a version bump.                                                                                     |
 | 1.1.1/1.1.2 | - Remove ServerSync, not sure why I had it here. It's not needed, and would cause issues for Crossplay.                                                            |
